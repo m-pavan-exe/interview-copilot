@@ -301,11 +301,12 @@ function App() {
         </div>
         <div className="header-controls">
           <button 
-            className={`listen-btn ${isListening ? 'listening' : ''}`}
+            className={`listen-btn ${isListening ? 'listening' : ''} ${microphonePermission !== 'granted' ? 'permission-needed' : ''}`}
             onClick={toggleListening}
-            disabled={isProcessing}
+            disabled={isProcessing || !speechSupported}
           >
-            {isListening ? '🎤 Listening...' : '🎤 Start Listening'}
+            {microphonePermission !== 'granted' ? '🔒 Grant Mic Access' : 
+             isListening ? '🎤 Listening...' : '🎤 Start Listening'}
           </button>
           <button 
             className="hide-btn"
