@@ -17,66 +17,135 @@ function App() {
   const silenceTimeoutRef = useRef(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Check browser support and request microphone permission
+  useEffect(() => {
+    const checkSpeechSupport = async () => {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        setSpeechSupported(true);
+        setDebugInfo('✅ Speech Recognition supported');
+        
+        // Request microphone permission
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach(track => track.stop()); // Stop immediately, we just need permission
+          setMicrophonePermission('granted');
+          setDebugInfo('✅ Microphone permission granted');
+        } catch (error) {
+          setMicrophonePermission('denied');
+          setDebugInfo(`❌ Microphone permission denied: ${error.message}`);
+          console.error('Microphone permission error:', error);
+        }
+      } else {
+        setSpeechSupported(false);
+        setDebugInfo('❌ Speech Recognition not supported in this browser');
+      }
+    };
+    
+    checkSpeechSupport();
+  }, []);
+
   // Initialize speech recognition
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
-      
-      recognitionRef.current.onresult = (event) => {
-        let finalTranscript = '';
-        let interimTranscript = '';
-        
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript;
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-        
-        if (finalTranscript) {
-          setTranscript(finalTranscript);
-          handleFinalTranscript(finalTranscript);
-        } else {
-          setTranscript(interimTranscript);
-        }
-        
-        // Reset silence timeout
-        if (silenceTimeoutRef.current) {
-          clearTimeout(silenceTimeoutRef.current);
-        }
-        
-        // Set new silence timeout (3 seconds of silence)
-        silenceTimeoutRef.current = setTimeout(() => {
-          if (finalTranscript && currentSession) {
-            processQuestion(finalTranscript);
-          }
-        }, 3000);
-      };
-      
-      recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        setIsListening(false);
-      };
-      
-      recognitionRef.current.onend = () => {
-        if (isListening) {
-          // Restart recognition if it stops unexpectedly
-          setTimeout(() => {
-            if (recognitionRef.current && isListening) {
-              recognitionRef.current.start();
-            }
-          }, 100);
-        }
-      };
+    if (!speechSupported || microphonePermission !== 'granted') {
+      return;
     }
-  }, [isListening, currentSession]);
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    
+    recognitionRef.current.continuous = true;
+    recognitionRef.current.interimResults = true;
+    recognitionRef.current.lang = 'en-US';
+    
+    recognitionRef.current.onstart = () => {
+      console.log('Speech recognition started');
+      setDebugInfo('🎤 Speech recognition active');
+      setIsListening(true);
+    };
+    
+    recognitionRef.current.onresult = (event) => {
+      console.log('Speech recognition result:', event);
+      let finalTranscript = '';
+      let interimTranscript = '';
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      
+      if (finalTranscript) {
+        setTranscript(finalTranscript);
+        handleFinalTranscript(finalTranscript);
+        setDebugInfo(`📝 Final: ${finalTranscript.slice(0, 50)}...`);
+      } else {
+        setTranscript(interimTranscript);
+        setDebugInfo(`🎯 Listening: ${interimTranscript.slice(0, 50)}...`);
+      }
+      
+      // Reset silence timeout
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+      }
+      
+      // Set new silence timeout (3 seconds of silence)
+      silenceTimeoutRef.current = setTimeout(() => {
+        if (finalTranscript && currentSession) {
+          processQuestion(finalTranscript);
+        }
+      }, 3000);
+    };
+    
+    recognitionRef.current.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      setDebugInfo(`❌ Error: ${event.error}`);
+      
+      if (event.error === 'no-speech') {
+        setDebugInfo('🔇 No speech detected - keep talking');
+      } else if (event.error === 'audio-capture') {
+        setDebugInfo('❌ Microphone not accessible');
+        setIsListening(false);
+      } else if (event.error === 'not-allowed') {
+        setDebugInfo('❌ Microphone permission denied');
+        setMicrophonePermission('denied');
+        setIsListening(false);
+      } else {
+        setDebugInfo(`❌ Recognition error: ${event.error}`);
+      }
+    };
+    
+    recognitionRef.current.onend = () => {
+      console.log('Speech recognition ended');
+      setDebugInfo('🔴 Recognition stopped');
+      
+      // Auto-restart if we're supposed to be listening
+      if (isListening) {
+        setTimeout(() => {
+          if (recognitionRef.current && isListening) {
+            try {
+              recognitionRef.current.start();
+              setDebugInfo('🔄 Restarting recognition...');
+            } catch (error) {
+              console.error('Failed to restart recognition:', error);
+              setDebugInfo(`❌ Restart failed: ${error.message}`);
+              setIsListening(false);
+            }
+          }
+        }, 100);
+      } else {
+        setIsListening(false);
+      }
+    };
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [speechSupported, microphonePermission, isListening, currentSession]);
 
   // Screen sharing detection - removed automatic detection to prevent permission prompts
   // Users can manually hide the interface using Ctrl+H hotkey
