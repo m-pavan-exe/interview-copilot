@@ -324,6 +324,11 @@ function App() {
           <div className="transcript-box">
             {transcript || 'Waiting for speech...'}
           </div>
+          {debugInfo && (
+            <div className="debug-info">
+              <small>{debugInfo}</small>
+            </div>
+          )}
         </div>
 
         {/* AI Response */}
