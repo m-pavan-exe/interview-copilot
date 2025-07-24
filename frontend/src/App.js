@@ -9,7 +9,6 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [transcriptHistory, setTranscriptHistory] = useState([]);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
   
   const recognitionRef = useRef(null);
   const silenceTimeoutRef = useRef(null);
