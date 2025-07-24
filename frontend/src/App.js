@@ -266,7 +266,6 @@ function App() {
           <span>Shortcuts: Ctrl+H (Hide) | Ctrl+L (Listen)</span>
         </div>
         <div className="status">
-          {isScreenSharing && <span className="screen-sharing">📺 Screen sharing detected</span>}
           <span className={`status-dot ${isListening ? 'active' : ''}`}></span>
         </div>
       </div>
