@@ -232,17 +232,48 @@ function App() {
 
   // Toggle listening
   const toggleListening = async () => {
+    if (!speechSupported) {
+      setDebugInfo('❌ Speech recognition not supported in this browser');
+      return;
+    }
+    
+    if (microphonePermission !== 'granted') {
+      setDebugInfo('❌ Microphone permission required');
+      // Try to request permission again
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        stream.getTracks().forEach(track => track.stop());
+        setMicrophonePermission('granted');
+        setDebugInfo('✅ Microphone permission granted');
+      } catch (error) {
+        setDebugInfo(`❌ Microphone permission denied: ${error.message}`);
+        return;
+      }
+    }
+    
     if (!currentSession) {
       const session = await createSession();
       if (!session) return;
     }
     
     if (isListening) {
-      recognitionRef.current?.stop();
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
       setIsListening(false);
+      setDebugInfo('🔴 Stopped listening');
     } else {
-      recognitionRef.current?.start();
-      setIsListening(true);
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.start();
+          setDebugInfo('🎤 Starting to listen...');
+        } catch (error) {
+          console.error('Failed to start recognition:', error);
+          setDebugInfo(`❌ Failed to start: ${error.message}`);
+        }
+      } else {
+        setDebugInfo('❌ Speech recognition not initialized');
+      }
     }
   };
 
