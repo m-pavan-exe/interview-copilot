@@ -52,9 +52,9 @@ class InterviewCopilot:
         # Audio settings
         self.CHUNK = 1024
         self.FORMAT = pyaudio.paInt16
-        self.CHANNELS = 1
+        self.CHANNELS = 2
         self.RATE = 16000
-        self.RECORD_SECONDS = 3  # Process audio in 3-second chunks
+        self.RECORD_SECONDS = 8  # Process audio in 3-second chunks
         
         # State variables
         self.is_listening = False
@@ -94,7 +94,7 @@ class InterviewCopilot:
             self.logger.info(f"Loading Whisper model on {device}")
             
             # Use small model for real-time performance, base for better accuracy
-            model_size = "base" if torch.cuda.is_available() else "tiny"
+            model_size = "medium.en" if torch.cuda.is_available() else "medium.en"
             self.whisper_model = whisper.load_model(model_size, device=device)
             
             self.logger.info(f"Whisper model '{model_size}' loaded successfully on {device}")
@@ -117,7 +117,7 @@ class InterviewCopilot:
             
             # Initialize model
             self.gemini_model = genai.GenerativeModel(
-                model_name="gemini-2.5-pro-preview-05-06",
+                model_name="gemini-2.5-flash",
                 generation_config={
                     "temperature": 0.7,
                     "top_p": 0.8,
@@ -135,7 +135,7 @@ class InterviewCopilot:
             # Start conversation with system message
             self.chat = self.gemini_model.start_chat(history=[])
             
-            system_message = """You are an expert interview copilot assistant. Your role is to help the interviewee answer questions professionally and effectively.
+            system_message = """You are an expert interview copilot assistant specialized in Software engineering, AI, ML, DL. Your role is to help the interviewee answer questions professionally and effectively.
 
 When given an interview question, provide:
 1. A clear, concise, and professional answer
@@ -426,7 +426,7 @@ Structure your response as:
                     )
                     
                     text = result['text'].strip()
-                    if text and len(text) > 3:  # Filter out very short utterances
+                    if text and len(text) > 2:  # Filter out very short utterances
                         self.transcript_queue.put({
                             'text': text,
                             'timestamp': datetime.now(),
