@@ -76,26 +76,8 @@ function App() {
     }
   }, [isListening, currentSession]);
 
-  // Screen sharing detection
-  useEffect(() => {
-    const detectScreenSharing = async () => {
-      try {
-        if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-          // Check if screen sharing is active by trying to access display media
-          const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-          stream.getTracks().forEach(track => track.stop());
-          setIsScreenSharing(true);
-          setTimeout(() => setIsScreenSharing(false), 1000);
-        }
-      } catch (error) {
-        // Screen sharing not active or permission denied
-        setIsScreenSharing(false);
-      }
-    };
-    
-    const interval = setInterval(detectScreenSharing, 2000);
-    return () => clearInterval(interval);
-  }, []);
+  // Screen sharing detection - removed automatic detection to prevent permission prompts
+  // Users can manually hide the interface using Ctrl+H hotkey
 
   // Hotkey controls (Ctrl+H to hide/show)
   useEffect(() => {
