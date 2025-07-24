@@ -175,8 +175,8 @@ function App() {
     }
   };
 
-  // Auto-hide when screen sharing is detected
-  const shouldHide = isScreenSharing || !isVisible;
+  // Auto-hide when manually set to invisible (removed problematic screen sharing detection)
+  const shouldHide = !isVisible;
 
   if (shouldHide) {
     return (
