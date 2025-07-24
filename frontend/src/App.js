@@ -9,6 +9,9 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [transcriptHistory, setTranscriptHistory] = useState([]);
+  const [microphonePermission, setMicrophonePermission] = useState('prompt');
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [debugInfo, setDebugInfo] = useState('');
   
   const recognitionRef = useRef(null);
   const silenceTimeoutRef = useRef(null);
