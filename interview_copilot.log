@@ -184,3 +184,19 @@ violations {
 2025-07-24 19:24:00,688 - __main__ - INFO - Audio capture started
 2025-07-24 19:26:57,997 - __main__ - INFO - Stopped listening
 2025-07-24 19:26:58,985 - __main__ - INFO - Shutting down Interview Copilot
+2025-07-24 21:44:24,149 - __main__ - INFO - Loading Whisper model on cuda
+2025-07-24 21:44:32,513 - __main__ - INFO - Whisper model 'medium.en' loaded successfully on cuda
+2025-07-24 21:44:32,513 - __main__ - INFO - Using GPU: NVIDIA GeForce RTX 4050 Laptop GPU
+2025-07-24 21:44:35,407 - __main__ - INFO - Gemini API initialized successfully
+2025-07-24 21:44:36,164 - __main__ - INFO - Global hotkeys registered successfully
+2025-07-24 21:44:36,167 - __main__ - INFO - Interview Copilot initialized successfully
+2025-07-24 21:44:36,167 - __main__ - INFO - Starting Interview Copilot GUI
+2025-07-24 21:44:40,749 - __main__ - INFO - Started listening
+2025-07-24 21:44:41,116 - __main__ - INFO - Audio capture started
+2025-07-24 21:44:45,086 - __main__ - INFO - Stopped listening
+2025-07-24 21:45:09,543 - __main__ - INFO - Started listening
+2025-07-24 21:45:09,712 - __main__ - INFO - Audio capture started
+2025-07-24 21:45:36,640 - __main__ - INFO - Stopped listening
+2025-07-24 21:45:38,066 - __main__ - INFO - Started listening
+2025-07-24 21:45:38,324 - __main__ - INFO - Audio capture started
+2025-07-24 21:45:51,350 - __main__ - INFO - Shutting down Interview Copilot
