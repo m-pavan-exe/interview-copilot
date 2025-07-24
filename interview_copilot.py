@@ -11,6 +11,9 @@ Requirements:
 Author: AI Assistant
 Version: 1.0
 """
+"""
+NOTE: Provide your gemini api key at line 115
+"""
 
 import tkinter as tk
 from tkinter import ttk, scrolledtext, messagebox
@@ -112,7 +115,7 @@ class InterviewCopilot:
         """Initialize Gemini API"""
         try:
             # API key - you can set this in environment or here
-            api_key = "AIzaSyDo7zEUHg-YfjnUz2nSJQYpdFcpFbPSAUU"  # Your provided key
+            api_key = "xxxxxxxxxxxxxxxxxxxxxxxxxxx"  # Your provided key
             genai.configure(api_key=api_key)
             
             # Initialize model
