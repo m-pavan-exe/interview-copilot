@@ -12,7 +12,7 @@ Author: AI Assistant
 Version: 1.0
 """
 """
-NOTE: Provide your gemini api key at line 115
+NOTE: Provide your gemini api key at line 118
 """
 
 import tkinter as tk
